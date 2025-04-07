@@ -1,0 +1,60 @@
+# name of our overall action
+name: Deloy To Github Pages
+
+# on defines when the action will run
+on:
+    push: 
+        branches: [main]
+    workflow_dispatch:
+# grants our image runner the ability to read and write files 
+permissions: 
+    contents: read
+    pages: write
+    id-token: write
+
+# 2 commits made to main, this will cancel the first and only run the second
+concurrency: 
+    group: "pages"
+    cancel-in-progress: true
+
+# jobs defines what actions will run
+jobs: 
+    # build is the name of the job, this can be set to whatever you want 
+    build: 
+        # each job is set on an image, in this case ubuntu
+        runs-on: ubuntu-22.04
+        # steps are tasks
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+              # each step has a name and either a command (like run) or an existing premade step like pnpm or action-setup
+            - name: Install pnpm
+              uses: pnpm/actions-setup@v2
+              with:
+                    version: 8
+                    run_install: false
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: "18"
+                cache: "pnpm"
+            - name: Install dependencies
+              run: pnpm install
+            - name: Build Application
+              run: pnpm build
+            - name: Upload Build Artifact
+              uses: actions/upload-pages-artifact@v3
+              with: 
+                path: ./dist
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{steps.deployment.outputs.page.url}}
+        needs: build
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Deploy to Github Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
+
+
