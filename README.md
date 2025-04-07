@@ -19,7 +19,7 @@ This project includes a development environment with hot reload capabilities usi
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/USERNAME/nft_dev.git
+   git clone https://github.com/kendradias/nft_dev.git
    cd nft_dev
    ```
 
